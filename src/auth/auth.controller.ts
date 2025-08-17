@@ -1,22 +1,25 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { LoginDto } from './login.dto';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
+    constructor(public authservices: AuthService) { }
+
+// Post Method For Adding User
     @Post('login')
-    login(@Body() loginDto: LoginDto) {
+    addUser(@Body() userdata: LoginDto) {
 
-        const username = loginDto.username;
-        const password = loginDto.password;
-        return {message : "Task Done"}
+        return this.authservices.addUser(userdata);
 
-        
-        // // just demo response
-        // if (username === 'admin' && password === '1234') {
-        //     return { message: 'Login successful', token: 'fake-jwt-token' };
-        // } else {
-        //     return { message: 'Invalid credentials' };
-        // }
+    }
+
+
+    //Get Users 
+
+    @Get('usersList')
+    getUsersList(){
+        return this.authservices.usersList();
     }
 
 }
