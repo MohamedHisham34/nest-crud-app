@@ -6,7 +6,7 @@ import { AuthService } from './auth.service';
 export class AuthController {
     constructor(public authservices: AuthService) { }
 
-// Post Method For Adding User
+    // Post Method For Adding User
     @Post('login')
     addUser(@Body() userdata: LoginDto) {
 
@@ -14,12 +14,10 @@ export class AuthController {
 
     }
 
-
-    //Get Users 
-
-    @Get('usersList')
-    getUsersList(){
-        return this.authservices.usersList();
+// get All Users From Datbase
+    @Get('getAllUsers')
+    getAllUsers() {
+        return this.authservices.getAllUsers();
     }
 
 }

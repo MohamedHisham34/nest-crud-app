@@ -5,8 +5,6 @@ import { DataSource } from 'typeorm';
 export class DatabaseService {
     constructor(private dataSource: DataSource) { }
 
-
-
     async checkDB() {
         try {
             await this.dataSource.query('Select 1');
