@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { LoginDto } from './login.dto';
+import { UserDto } from './user.dto';
 import { DataSource } from 'typeorm';
 
 @Injectable()
 export class AuthService {
     constructor(private dataSource: DataSource) { }
-    async addUser(userData: LoginDto) {
+    async addUser(userData: UserDto) {
 
         try {
 
@@ -28,9 +28,21 @@ export class AuthService {
 
 
 
-        } catch (e) { 
-            return {message : `Error ---- ${e}`}
+        } catch (e) {
+            return { message: `Error ---- ${e}` }
         }
+    }
+
+
+    async getOneUser(userID: number) {
+        try {
+            var userData = await this.dataSource.query('SELECT * FROM users WHERE user_id = ?',[userID])
+            return { message: 'Done', data: userData };
+
+        } catch (e) {
+            return { message: `Error ---- ${e}` }
+        }
+
     }
 
 }
