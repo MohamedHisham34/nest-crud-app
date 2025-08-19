@@ -1,48 +1,55 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { UserDto } from './user.dto';
 import { DataSource } from 'typeorm';
 
 @Injectable()
 export class AuthService {
-    constructor(private dataSource: DataSource) { }
+    constructor(private dataSource: DataSource) {}
+
     async addUser(userData: UserDto) {
-
         try {
+            
+            const checkQuery = await this.dataSource.query(
+                'SELECT * FROM users WHERE user_id = ?',
+                [userData.id]
+            );
 
-            await this.dataSource.query('INSERT INTO users (user_id, user_name, password) VALUES (?, ?, ?)', [userData.id, userData.user_name, userData.password])
+            if (checkQuery.length > 0) {
+                throw new BadRequestException('Id Already Exists');
+            }
+
+            await this.dataSource.query(
+                'INSERT INTO users (user_id, user_name, password) VALUES (?, ?, ?)',
+                [userData.id, userData.user_name, userData.password]
+            );
+
+            return { message: 'User Added Successfully' };
         } catch (e) {
-            return { message: `Error Occured ----- ${e}` }
+            if (e instanceof BadRequestException) {
+                throw e; 
+            }
+            throw new InternalServerErrorException(`Error Occurred: ${e}`);
         }
-
-        return { message: "User Added Successfully" }
     }
-
-
-
 
     async getAllUsers() {
         try {
-            var users = await this.dataSource.query('SELECT * FROM `users`')
+            const users = await this.dataSource.query('SELECT * FROM users');
             return { message: 'Done', data: users };
-
-
-
-
         } catch (e) {
-            return { message: `Error ---- ${e}` }
+            throw new InternalServerErrorException(`Error: ${e}`);
         }
     }
-
 
     async getOneUser(userID: number) {
         try {
-            var userData = await this.dataSource.query('SELECT * FROM users WHERE user_id = ?',[userID])
+            const userData = await this.dataSource.query(
+                'SELECT * FROM users WHERE user_id = ?',
+                [userID]
+            );
             return { message: 'Done', data: userData };
-
         } catch (e) {
-            return { message: `Error ---- ${e}` }
+            throw new InternalServerErrorException(`Error: ${e}`);
         }
-
     }
-
 }
