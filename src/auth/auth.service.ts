@@ -8,7 +8,7 @@ export class AuthService {
     constructor(
         private dataSource: DataSource
         , private jwtService: JwtService
-    ) {}
+    ) { }
 
 
 
@@ -86,5 +86,11 @@ export class AuthService {
             return false
         }
 
+    }
+
+
+    decodeToken(token: string) {
+
+        return this.jwtService.decode(token);
     }
 }

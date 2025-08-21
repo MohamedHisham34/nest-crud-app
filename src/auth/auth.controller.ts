@@ -2,11 +2,16 @@ import { Body, Controller, Get, Header, Headers, Param, Post, Req, Res, Unauthor
 import { UserDto as UserDto } from './user.dto';
 import { AuthService } from './auth.service';
 import express from 'express';
+import { userInfo } from 'node:os';
 
 
 @Controller('auth')
 export class AuthController {
-    constructor(public authservices: AuthService) { }
+    constructor(
+        private authservices: AuthService,
+        private userDTO: UserDto
+
+    ) { }
 
     // Post Method For Adding User
     @Post('register')
@@ -47,7 +52,6 @@ export class AuthController {
 
 
     @Post('token')
-
     async getToken(
         @Res() res: express.Response,
         @Body() userDTO: UserDto
@@ -61,4 +65,17 @@ export class AuthController {
             ,
         );
     }
+
+
+
+    @Get('testDecode')
+    decodeToken(
+        @Req() req: express.Request
+    ) {
+        const jwtToken = req.cookies['myToken'];
+        const decodeValue = this.authservices.decodeToken(jwtToken)
+        console.log(decodeValue);
+        return decodeValue[`${this.userDTO.user_name}`];
+    }
+
 }
