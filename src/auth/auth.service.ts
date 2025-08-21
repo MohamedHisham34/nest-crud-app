@@ -1,14 +1,21 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { UserDto } from './user.dto';
 import { DataSource } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-    constructor(private dataSource: DataSource) {}
+    constructor(
+        private dataSource: DataSource
+        , private jwtService: JwtService
+    ) {}
 
+
+
+    // Add New Users 
     async addUser(userData: UserDto) {
         try {
-            
+
             const checkQuery = await this.dataSource.query(
                 'SELECT * FROM users WHERE user_id = ?',
                 [userData.id]
@@ -26,11 +33,14 @@ export class AuthService {
             return { message: 'User Added Successfully' };
         } catch (e) {
             if (e instanceof BadRequestException) {
-                throw e; 
+                throw e;
             }
             throw new InternalServerErrorException(`Error Occurred: ${e}`);
         }
     }
+
+
+    // Get All Users From Database
 
     async getAllUsers() {
         try {
@@ -41,6 +51,8 @@ export class AuthService {
         }
     }
 
+
+    // Get Only one User by Params
     async getOneUser(userID: number) {
         try {
             const userData = await this.dataSource.query(
@@ -51,5 +63,28 @@ export class AuthService {
         } catch (e) {
             throw new InternalServerErrorException(`Error: ${e}`);
         }
+    }
+
+
+
+    // Generate Token
+    async getToken(userDTO: UserDto) {
+        const payload = { user_name: userDTO.user_name, user_id: userDTO.id }
+        return this.jwtService.sign(payload, { secret: '01141288661', expiresIn: '1h' });
+    }
+
+
+    async validate(token: string) {
+        try {
+            await this.jwtService.verify(token, { secret: '01141288661' })
+            console.log("true")
+            return true
+
+        }
+        catch (e) {
+            console.log("false")
+            return false
+        }
+
     }
 }

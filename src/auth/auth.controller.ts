@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Header, Headers, Param, Post, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, Header, Headers, Param, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { UserDto as UserDto } from './user.dto';
 import { AuthService } from './auth.service';
-import { promises } from 'dns';
+import express from 'express';
+
 
 @Controller('auth')
 export class AuthController {
@@ -9,22 +10,27 @@ export class AuthController {
 
     // Post Method For Adding User
     @Post('register')
-    addUser(
+    async addUser(
         @Body() userdata: UserDto,
-        @Headers('token') usedtoken: string,
+        @Req() req: express.Request
     ) {
-        if (usedtoken !== "Real Token") {
-            throw new UnauthorizedException('invalid token')
-        }
 
+
+
+        const Isvalid = await this.authservices.validate(req.cookies['myToken'] || "NO Cookie Found of this Name")
+        if (!Isvalid) {
+            throw new UnauthorizedException("Token Expired")
+        }
         else {
             return this.authservices.addUser(userdata);
         }
 
 
+
+
     }
 
-    
+
 
 
     // get All Users From Datbase
@@ -39,4 +45,20 @@ export class AuthController {
         return this.authservices.getOneUser(id);
     }
 
+
+    @Post('token')
+
+    async getToken(
+        @Res() res: express.Response,
+        @Body() userDTO: UserDto
+    ) {
+        const token = await this.authservices.getToken(userDTO);
+        res.cookie("myToken", token)
+        return res.send({
+            message: 'Token generated and stored in cookie',
+            token: token,
+        }
+            ,
+        );
+    }
 }

@@ -7,6 +7,7 @@ import { LoggerMiddleware } from 'src/middleware/logger.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseController } from 'src/database/database.controller';
 import { DatabaseService } from 'src/database/database.service';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { DatabaseService } from 'src/database/database.service';
 
   ],
   controllers: [AppController, AuthController,DatabaseController],
-  providers: [AppService, AuthService,DatabaseService],
+  providers: [AppService, AuthService,DatabaseService,JwtService],
 })
 
 
