@@ -1,4 +1,5 @@
-import { isInt, isNotEmpty, IsNotEmpty, IsString } from 'class-validator';
+import { isEnum, isInt, isNotEmpty, IsNotEmpty, IsString } from 'class-validator';
+import { roles } from './roles';
 
 export class UserDto {
 
@@ -13,5 +14,7 @@ export class UserDto {
   @IsString({ message: 'Password must be a string' })
   password: string;
 
+  @IsNotEmpty({ message: 'roles must be Not Empty' })
+  role : roles
 
 }

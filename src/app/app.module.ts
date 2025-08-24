@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseController } from 'src/database/database.controller';
 import { DatabaseService } from 'src/database/database.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
+import { UserDto } from 'src/auth/user.dto';
 
 @Module({
   imports: [
@@ -23,8 +24,8 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
     }),
 
   ],
-  controllers: [AppController, AuthController,DatabaseController],
-  providers: [AppService, AuthService,DatabaseService,JwtService],
+  controllers: [AppController, AuthController, DatabaseController],
+  providers: [AppService, AuthService, DatabaseService, JwtService, UserDto],
 })
 
 

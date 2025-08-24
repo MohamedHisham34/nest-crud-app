@@ -1,15 +1,16 @@
-import { Body, Controller, Get, Header, Headers, Param, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Header, Headers, Param, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { UserDto as UserDto } from './user.dto';
 import { AuthService } from './auth.service';
 import express from 'express';
-import { userInfo } from 'node:os';
+import { DataSource } from 'typeorm';
+
 
 
 @Controller('auth')
 export class AuthController {
     constructor(
         private authservices: AuthService,
-        private userDTO: UserDto
+        private userDTO: UserDto,
 
     ) { }
 
@@ -17,22 +18,38 @@ export class AuthController {
     @Post('register')
     async addUser(
         @Body() userdata: UserDto,
-        @Req() req: express.Request
     ) {
 
+        await this.authservices.addUser(userdata);
+        return { message: "User Added" }
+    }
 
 
-        const Isvalid = await this.authservices.validate(req.cookies['myToken'] || "NO Cookie Found of this Name")
-        if (!Isvalid) {
-            throw new UnauthorizedException("Token Expired")
+    @Post('login')
+    async login(
+        @Body('user_name') user_name: string,
+        @Body('password') password: string,
+        @Res() res: express.Response,
+    ) {
+        const userRecord = await this.authservices.validateUser(user_name, password);
+
+        if (!userRecord) {
+            throw new BadRequestException('User Not Found');
         }
-        else {
-            return this.authservices.addUser(userdata);
-        }
 
+        // Build user object for token
+        const userForToken = {
+            id: userRecord.user_id,
+            user_name,
+            role: userRecord.roles,
+        };
 
+        console.log(userForToken)
 
+        const token = await this.authservices.getToken(userForToken);
 
+        res.cookie("myToken", token);
+        return res.json({ message: "Login success", token });
     }
 
 
@@ -75,7 +92,11 @@ export class AuthController {
         const jwtToken = req.cookies['myToken'];
         const decodeValue = this.authservices.decodeToken(jwtToken)
         console.log(decodeValue);
-        return decodeValue[`${this.userDTO.user_name}`];
+        return decodeValue[`role`] || "No Token Found";
     }
-
 }
+
+
+// const Isvalid = await this.authservices.validate(req.cookies['myToken'] || "NO Cookie Found of this Name")
+// if (!Isvalid) {
+//     throw new UnauthorizedException("Token Expired")

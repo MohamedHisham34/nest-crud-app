@@ -40,6 +40,20 @@ export class AuthService {
     }
 
 
+    async validateUser(user_name: string, password: string) {
+        const rows = await this.dataSource.query(
+            'SELECT user_id, roles FROM users WHERE user_name = ? AND password = ?',
+            [user_name, password]
+        );
+
+
+        if (rows.length === 0) {
+            return null;
+        }
+        return rows[0]; // { user_id: 1, role: 'admin' }
+    }
+
+
     // Get All Users From Database
 
     async getAllUsers() {
@@ -68,8 +82,12 @@ export class AuthService {
 
 
     // Generate Token
-    async getToken(userDTO: UserDto) {
-        const payload = { user_name: userDTO.user_name, user_id: userDTO.id }
+    async getToken(user: { id: number; user_name: string; role: string }) {
+        const payload = {
+            user_id: user.id,
+            user_name: user.user_name,
+            role: user.role
+        };
         return this.jwtService.sign(payload, { secret: '01141288661', expiresIn: '1h' });
     }
 
@@ -93,4 +111,5 @@ export class AuthService {
 
         return this.jwtService.decode(token);
     }
+
 }
