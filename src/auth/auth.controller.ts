@@ -95,8 +95,3 @@ export class AuthController {
         return decodeValue[`role`] || "No Token Found";
     }
 }
-
-
-// const Isvalid = await this.authservices.validate(req.cookies['myToken'] || "NO Cookie Found of this Name")
-// if (!Isvalid) {
-//     throw new UnauthorizedException("Token Expired")

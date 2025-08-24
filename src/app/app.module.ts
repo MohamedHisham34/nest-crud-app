@@ -9,6 +9,8 @@ import { DatabaseController } from 'src/database/database.controller';
 import { DatabaseService } from 'src/database/database.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { UserDto } from 'src/auth/user.dto';
+import { TodoController } from 'src/todo/todo.controller';
+import { TodoService } from 'src/todo/todo.service';
 
 @Module({
   imports: [
@@ -24,8 +26,8 @@ import { UserDto } from 'src/auth/user.dto';
     }),
 
   ],
-  controllers: [AppController, AuthController, DatabaseController],
-  providers: [AppService, AuthService, DatabaseService, JwtService, UserDto],
+  controllers: [AppController, AuthController, DatabaseController, TodoController],
+  providers: [AppService, AuthService, DatabaseService, JwtService, UserDto, TodoService],
 })
 
 
